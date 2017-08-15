@@ -47,6 +47,8 @@ def get_relaxation_solution(goal_expr, linear_equations, var_num):
     for eq in linear_equations:
         s.add_constraint(eq['mat'], eq['val'])
     res = s.solve()
+    if res is None:
+        return
     expr_val = res[0]
     for i in range(1, var_num+1):
         if res[1].get(i) is None:
@@ -66,7 +68,7 @@ if __name__ == '__main__':
                 22; [1,1,0.5,0]
         """
     idx = 0
-    print '------------- ROUND %s -----------------' % idx
+    print '------------- branching %s -----------------' % idx
     goal_expr = dict(mat=[8, 11, 6, 4], max_mode=True)
     linear_equations = [
         dict(mat=[5, 7, 4, 3], val=14),
@@ -77,23 +79,81 @@ if __name__ == '__main__':
     ]
     print get_relaxation_solution(goal_expr, linear_equations, var_num=4)
     idx += 1
-    print '------------- ROUND %s -----------------' % idx
+    print '------------- branching %s -----------------' % idx
     # x3=0
-    goal_expr = dict(mat=[8, 11, 4], max_mode=True)
+    goal_expr = dict(mat=[8, 11, 6, 4], max_mode=True)
     linear_equations = [
-        dict(mat=[5, 7, 3], val=14),
-        dict(mat=[1, 0, 0], val=1),
-        dict(mat=[0, 1, 0], val=1),
-        dict(mat=[0, 0, 1], val=1),
+        dict(mat=[5, 7, 4, 3], val=14),
+        dict(mat=[1, 0, 0, 0], val=1),
+        dict(mat=[0, 1, 0, 0], val=1),
+        dict(mat=[0, 0, 1, 0], val=0),
+        dict(mat=[0, 0, -1, 0], val=0),
+        dict(mat=[0, 0, 0, 1], val=1),
     ]
-    print get_relaxation_solution(goal_expr, linear_equations, var_num=3)
+    print get_relaxation_solution(goal_expr, linear_equations, var_num=4)
     # x3=1
-    goal_expr = dict(mat=[8, 11, 4], max_mode=True)
+    goal_expr = dict(mat=[8, 11, 6, 4], max_mode=True)
     linear_equations = [
-        dict(mat=[5, 7, 3], val=10),
-        dict(mat=[1, 0, 0], val=1),
-        dict(mat=[0, 1, 0], val=1),
-        dict(mat=[0, 0, 1], val=1),
+        dict(mat=[5, 7, 4, 3], val=14),
+        dict(mat=[1, 0, 0, 0], val=1),
+        dict(mat=[0, 1, 0, 0], val=1),
+        dict(mat=[0, 0, 1, 0], val=1),
+        dict(mat=[0, 0, -1, 0], val=-1),
+        dict(mat=[0, 0, 0, 1], val=1),
     ]
-    print get_relaxation_solution(goal_expr, linear_equations, var_num=3)
+    print get_relaxation_solution(goal_expr, linear_equations, var_num=4)
+    idx += 1
+    print '------------- branching %s -----------------' % idx
+    # x3=1,x2=0
+    goal_expr = dict(mat=[8, 11, 6, 4], max_mode=True)
+    linear_equations = [
+        dict(mat=[5, 7, 4, 3], val=14),
+        dict(mat=[1, 0, 0, 0], val=1),
+        dict(mat=[0, 1, 0, 0], val=0),
+        dict(mat=[0, -1, 0, 0], val=0),
+        dict(mat=[0, 0, 1, 0], val=1),
+        dict(mat=[0, 0, -1, 0], val=-1),
+        dict(mat=[0, 0, 0, 1], val=1),
+    ]
+    print get_relaxation_solution(goal_expr, linear_equations, var_num=4)
+    # x3=1,x2=1
+    goal_expr = dict(mat=[8, 11, 6, 4], max_mode=True)
+    linear_equations = [
+        dict(mat=[5, 7, 4, 3], val=14),
+        dict(mat=[1, 0, 0, 0], val=1),
+        dict(mat=[0, 1, 0, 0], val=1),
+        dict(mat=[0, -1, 0, 0], val=-1),
+        dict(mat=[0, 0, 1, 0], val=1),
+        dict(mat=[0, 0, -1, 0], val=-1),
+        dict(mat=[0, 0, 0, 1], val=1),
+    ]
+    print get_relaxation_solution(goal_expr, linear_equations, var_num=4)
+    idx += 1
+    print '------------- branching %s -----------------' % idx
+    # x3=1,x2=1,x1=0
+    goal_expr = dict(mat=[8, 11, 6, 4], max_mode=True)
+    linear_equations = [
+        dict(mat=[5, 7, 4, 3], val=14),
+        dict(mat=[1, 0, 0, 0], val=0),
+        dict(mat=[-1, 0, 0, 0], val=0),
+        dict(mat=[0, 1, 0, 0], val=1),
+        dict(mat=[0, -1, 0, 0], val=-1),
+        dict(mat=[0, 0, 1, 0], val=1),
+        dict(mat=[0, 0, -1, 0], val=-1),
+        dict(mat=[0, 0, 0, 1], val=1),
+    ]
+    print get_relaxation_solution(goal_expr, linear_equations, var_num=4)
+    # x3=1,x2=1,x1=1
+    goal_expr = dict(mat=[8, 11, 6, 4], max_mode=True)
+    linear_equations = [
+        dict(mat=[5, 7, 4, 3], val=14),
+        dict(mat=[1, 0, 0, 0], val=1),
+        dict(mat=[-1, 0, 0, 0], val=-1),
+        dict(mat=[0, 1, 0, 0], val=1),
+        dict(mat=[0, -1, 0, 0], val=-1),
+        dict(mat=[0, 0, 1, 0], val=1),
+        dict(mat=[0, 0, -1, 0], val=-1),
+        dict(mat=[0, 0, 0, 1], val=1),
+    ]
+    print get_relaxation_solution(goal_expr, linear_equations, var_num=4)
     idx += 1
