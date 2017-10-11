@@ -14,38 +14,91 @@ PROBLEM:
 import random
 
 
-class FriendsNode:
-    def __init__(self, host, friends):
-        self.host = host
-        self.friends = friends
+class Route:
+    def __init__(self, route=[], is_finish=False):
+        self.route = route
+        self.is_finish = is_finish
+
+    def __str__(self):
+        return 'route: %s, is_finish: %s' % (self.route, self.is_finish)
 
 
-def find_longest_route(n, host):
+def init_nodes(composites):
+    """
+    node: the data structure for storing the host-friends relation
+    :param n:
+    :return:
+    """
     global nodes
-    route_longest = []
-    composites = get_all_friends(n)
     nodes = dict()
     for composite in composites:
         nodes[str(composite)] = get_all_friends(composite, composites)
-    route_current = list(host)
-    for f in nodes[str(host)]:
-        pass
+    print '---- ALL NODES ----'
+    for k, v in nodes.iteritems():
+        print "%s: %s" % (k, v)
 
 
-def append_route(route_curr, num):
+def get_route_set(host):
     global nodes
-    has_friends = False
-    for i in range(0, len(route_curr)-1):
-        if is_friend(num, route_curr[i]):
-            has_friends = True
-            break
-    if not has_friends:
-        route_curr.append(num)
-        friends = nodes[str(num)]
-        for f in friends:
-            append_route(route_curr, f)
-    else:
-        return
+    route_set = []
+    for f in nodes[str(host)]:
+        route = Route()
+        route.route = [host, f]
+        route_set.append(route)
+    append_route(route_set)
+    print '---- ROUTE SET ----'
+    for rt in route_set:
+        print rt
+    return route_set
+
+
+def find_longest_route(composites, host):
+    """
+    corresponds to 'PROBLEM 1)'
+    """
+    # init nodes
+    init_nodes(composites)
+    # get route set
+    route_set = get_route_set(host)
+    # get longest route
+    longest_route = []
+    for rt in route_set:
+        if len(longest_route) < len(rt.route):
+            longest_route = rt.route
+    return longest_route
+
+
+def append_route(route_set):
+    global nodes
+    finish_count = 0
+    for route in route_set:
+        if route.is_finish:
+            finish_count += 1
+            continue
+        tail = route.route[len(route.route) - 1]
+        tail_friends = nodes[str(tail)]
+        friend_count = 0
+        new_routes = []
+        for tf in tail_friends:
+            i = 0
+            appendable = True
+            while i < len(route.route) - 1:
+                if is_friend(tf, route.route[i]):
+                    friend_count += 1
+                    appendable = False
+                    break
+                i += 1
+            if appendable:
+                new_rt = list(route.route)
+                new_rt.append(tf)
+                new_routes.append(Route(new_rt, False))
+        if friend_count == len(tail_friends):
+            route.is_finish = True
+        else:
+            route_set.remove(route)
+            route_set.extend(new_routes)
+    if finish_count < len(route_set):
+        append_route(route_set)
 
 
 def get_divisors(num):
@@ -102,6 +155,8 @@ def get_all_friends(host, collection):
     """
     all_friends = []
     for p in collection:
+        if p == host:
+            continue
         if is_friend(host, p):
             all_friends.append(p)
     return all_friends
@@ -109,43 +164,9 @@ def get_all_friends(host, collection):
 
 if __name__ == '__main__':
     n = 20
-    '''
-    # 0. get all composite number
     composites = get_all_composites(n)
-    for item in composites:
-        print item
-    # 1. pick out one host
-    # host = random.choice(composites)
-    host = [3, 9]
-    print 'choose:', host
-
-
-    # 2. pick out all not-friend
-    not_friends = []
-    for item in composites:
-        if item[len(item) - 1] == host[len(host) - 1]:
-            continue
-        if is_friend(host, item):
-            continue
-        not_friends.append(item)
-    # 3. pick out all friends of not-friend, respectively
-    friendship_route = []
-    friend_trace_route = []
-    while len(not_friends) > 0:
-        for not_friend in not_friends:
-            friend_trace_route
-            all_friends = get_all_friends(not_friend, composites)
-            for friend in all_friends:
-                if is_friend(host, friend):
-                    not_friends.remove(not_friend)
-                    friendship_route.append(list(host[len(host)-1], not_friend[len(not_friend)-1], friend[len(friend)-1]))
-                    break
-                else:
-                    pass
-
-    # 4a. if they share friends, process stop and store friendship-route
-
-    # 4b. if there is no shared friend, do '3' again
-
-    # 5. compare all friendship-route and pick out the longest one
-    '''
+    host = random.choice(composites)
+    print '---- HOST ----'
+    print host
+    longest_rt = find_longest_route(composites, host)
+    print '---- longest route:', longest_rt
