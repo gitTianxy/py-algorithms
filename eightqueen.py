@@ -130,42 +130,11 @@ def select_point_in_row(panel, row):
             return p
 
 
-def select_2nd_point_in_row(panel, row):
-    """
-    select a point in a row, range:(start,end)
-    """
-    # get start
-    start = row * x_range
-    if row == (y_range - 1):
-        start += rt_next[row].x + 1
-    elif later_terminate(row):
-        start += rt_next[row].x + 1
-        for r in range(row + 1, y_range):
-            if row == (panel.x_range - 1):
-                rt_next[row + 1] = Point(-1, row + 1)
-            else:
-                rt_next[row + 1] = Point(0, row + 1)
-    else:
-        start += rt_next[row].x
-    # get end
-    end = (row + 1) * panel.x_range
-    # select
-    # print("*select from", panel.points[start:end])
-    first = True
-    for p in panel.points[start:end]:
-        if p.v == 0:
-            if first:
-                first = False
-                continue
-            p.v = 1
-            return p
-
-
 def give_rt_next(row_end):
     for r in range(row_end, 0, -1):
-        # panel_tmp = copy.deepcopy(panel)
         clear_label(rt_next[r], panel)
-        p = select_2nd_point_in_row(panel, r)
+        rt_next[r].x += 1
+        p = select_point_in_row(panel, r)
         # print("*return", str(p))
         if p is None:
             rt_next[r] = Point(0, r)
@@ -206,7 +175,6 @@ if __name__ == "__main__":
             if p is None:
                 print("not complete:", rt)
                 give_rt_next(r - 1)
-                # sleep(1)
                 break
             else:
                 rt.append(p)
